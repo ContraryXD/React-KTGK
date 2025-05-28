@@ -1,103 +1,376 @@
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import HeroCarousel from "./components/HeroCarousel";
+import CategoriesCarousel from "./components/CategoriesCarousel";
+import Link from "next/link";
 import Image from "next/image";
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <>
+      {/* Page Preloder - Assuming this is handled by Next.js or can be omitted */}
+      {/* <div id="preloder">
+        <div className="loader"></div>
+      </div> */}
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Humberger Menu - Assuming this is part of the Header or a mobile-specific component not yet built */}
+
+      <Header />
+
+      <HeroCarousel />
+
+      <CategoriesCarousel />
+
+      {/* Featured Section Begin */}
+      <section className="featured spad">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-12">
+              <div className="section-title">
+                <h2>Featured Product</h2>
+              </div>
+              <div className="featured__controls">
+                <ul>
+                  <li className="active" data-filter="*">
+                    All
+                  </li>
+                  <li data-filter=".oranges">Oranges</li>
+                  <li data-filter=".fresh-meat">Fresh Meat</li>
+                  <li data-filter=".vegetables">Vegetables</li>
+                  <li data-filter=".fastfood">Fastfood</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="row featured__filter">
+            {/* Example Product Item - Repeat for other products */}
+            <div className="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat">
+              <div className="featured__item">
+                <div className="featured__item__pic set-bg" style={{ backgroundImage: "url('/img/featured/feature-1.jpg')" }}>
+                  <ul className="featured__item__pic__hover">
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-heart"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-retweet"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-shopping-cart"></i>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+                <div className="featured__item__text">
+                  <h6>
+                    <Link href="#">Crab Pool Security</Link>
+                  </h6>
+                  <h5>$30.00</h5>
+                </div>
+              </div>
+            </div>
+            {/* Add other featured products here, similar to the one above */}
+            <div className="col-lg-3 col-md-4 col-sm-6 mix vegetables fastfood">
+              <div className="featured__item">
+                <div className="featured__item__pic set-bg" style={{ backgroundImage: "url('/img/featured/feature-2.jpg')" }}>
+                  <ul className="featured__item__pic__hover">
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-heart"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-retweet"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-shopping-cart"></i>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+                <div className="featured__item__text">
+                  <h6>
+                    <Link href="#">Crab Pool Security</Link>
+                  </h6>
+                  <h5>$30.00</h5>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-3 col-md-4 col-sm-6 mix vegetables fresh-meat">
+              <div className="featured__item">
+                <div className="featured__item__pic set-bg" style={{ backgroundImage: "url('/img/featured/feature-3.jpg')" }}>
+                  <ul className="featured__item__pic__hover">
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-heart"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-retweet"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-shopping-cart"></i>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+                <div className="featured__item__text">
+                  <h6>
+                    <Link href="#">Crab Pool Security</Link>
+                  </h6>
+                  <h5>$30.00</h5>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-3 col-md-4 col-sm-6 mix fastfood oranges">
+              <div className="featured__item">
+                <div className="featured__item__pic set-bg" style={{ backgroundImage: "url('/img/featured/feature-4.jpg')" }}>
+                  <ul className="featured__item__pic__hover">
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-heart"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-retweet"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-shopping-cart"></i>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+                <div className="featured__item__text">
+                  <h6>
+                    <Link href="#">Crab Pool Security</Link>
+                  </h6>
+                  <h5>$30.00</h5>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-3 col-md-4 col-sm-6 mix fresh-meat vegetables">
+              <div className="featured__item">
+                <div className="featured__item__pic set-bg" style={{ backgroundImage: "url('/img/featured/feature-5.jpg')" }}>
+                  <ul className="featured__item__pic__hover">
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-heart"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-retweet"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-shopping-cart"></i>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+                <div className="featured__item__text">
+                  <h6>
+                    <Link href="#">Crab Pool Security</Link>
+                  </h6>
+                  <h5>$30.00</h5>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-3 col-md-4 col-sm-6 mix oranges fastfood">
+              <div className="featured__item">
+                <div className="featured__item__pic set-bg" style={{ backgroundImage: "url('/img/featured/feature-6.jpg')" }}>
+                  <ul className="featured__item__pic__hover">
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-heart"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-retweet"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-shopping-cart"></i>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+                <div className="featured__item__text">
+                  <h6>
+                    <Link href="#">Crab Pool Security</Link>
+                  </h6>
+                  <h5>$30.00</h5>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-3 col-md-4 col-sm-6 mix fresh-meat vegetables">
+              <div className="featured__item">
+                <div className="featured__item__pic set-bg" style={{ backgroundImage: "url('/img/featured/feature-7.jpg')" }}>
+                  <ul className="featured__item__pic__hover">
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-heart"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-retweet"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-shopping-cart"></i>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+                <div className="featured__item__text">
+                  <h6>
+                    <Link href="#">Crab Pool Security</Link>
+                  </h6>
+                  <h5>$30.00</h5>
+                </div>
+              </div>
+            </div>
+            <div className="col-lg-3 col-md-4 col-sm-6 mix fastfood vegetables">
+              <div className="featured__item">
+                <div className="featured__item__pic set-bg" style={{ backgroundImage: "url('/img/featured/feature-8.jpg')" }}>
+                  <ul className="featured__item__pic__hover">
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-heart"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-retweet"></i>
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="#">
+                        <i className="fa fa-shopping-cart"></i>
+                      </Link>
+                    </li>
+                  </ul>
+                </div>
+                <div className="featured__item__text">
+                  <h6>
+                    <Link href="#">Crab Pool Security</Link>
+                  </h6>
+                  <h5>$30.00</h5>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </section>
+      {/* Featured Section End */}
+
+      {/* Banner Begin */}
+      <div className="banner">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-6 col-md-6 col-sm-6">
+              <div className="banner__pic">
+                <Image src="/img/banner/banner-1.jpg" alt="Banner 1" width={570} height={270} /> {/* Adjust width and height as needed */}
+              </div>
+            </div>
+            <div className="col-lg-6 col-md-6 col-sm-6">
+              <div className="banner__pic">
+                <Image src="/img/banner/banner-2.jpg" alt="Banner 2" width={570} height={270} /> {/* Adjust width and height as needed */}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Banner End */}
+
+      {/* Latest Product Section Begin - This section might need its own components for sliders */}
+      <section className="latest-product spad">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-4 col-md-6">
+              <div className="latest-product__text">
+                <h4>Latest Products</h4>
+                {/* Placeholder for owl-carousel */}
+                <div className="latest-product__slider">
+                  <div className="latest-prdouct__slider__item">
+                    <Link href="#" className="latest-product__item">
+                      <div className="latest-product__item__pic">
+                        <Image src="/img/latest-product/lp-1.jpg" alt="" width={110} height={110} />
+                      </div>
+                      <div className="latest-product__item__text">
+                        <h6>Crab Pool Security</h6>
+                        <span>$30.00</span>
+                      </div>
+                    </Link>
+                    {/* Add more items */}
+                  </div>
+                  {/* Add more slider items if structure is known */}
+                </div>
+              </div>
+            </div>
+            {/* Repeat for Top Rated and Review Products */}
+          </div>
+        </div>
+      </section>
+      {/* Latest Product Section End */}
+
+      {/* Blog Section Begin */}
+      <section className="from-blog spad">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-12">
+              <div className="section-title from-blog__title">
+                <h2>From The Blog</h2>
+              </div>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col-lg-4 col-md-4 col-sm-6">
+              <div className="blog__item">
+                <div className="blog__item__pic">
+                  <Image src="/img/blog/blog-1.jpg" alt="Blog 1" width={370} height={270} />
+                </div>
+                <div className="blog__item__text">
+                  <ul>
+                    <li>
+                      <i className="fa fa-calendar-o"></i> May 4,2019
+                    </li>
+                    <li>
+                      <i className="fa fa-comment-o"></i> 5
+                    </li>
+                  </ul>
+                  <h5>
+                    <Link href="#">Cooking tips make cooking simple</Link>
+                  </h5>
+                  <p>Sed quia non numquam modi tempora indunt ut labore et dolore magnam aliquam quaerat </p>
+                </div>
+              </div>
+            </div>
+            {/* Add other blog items */}
+          </div>
+        </div>
+      </section>
+      {/* Blog Section End */}
+
+      <Footer />
+    </>
   );
 }

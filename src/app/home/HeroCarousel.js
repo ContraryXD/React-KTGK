@@ -1,8 +1,36 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Carousel } from "antd";
 
 const HeroCarousel = () => {
-  // Placeholder for carousel logic
+  // Hero carousel items
+  const heroItems = [
+    {
+      id: 1,
+      category: "FRUIT FRESH",
+      title: "Vegetable 100% Organic",
+      subtitle: "Free Pickup and Delivery Available",
+      image: "/img/hero/banner.jpg",
+      link: "/shop",
+    },
+    {
+      id: 2,
+      category: "FRESH MEAT",
+      title: "Premium Quality Meat",
+      subtitle: "Farm Fresh Daily Delivery",
+      image: "/img/hero/banner.jpg", // You can add more banner images
+      link: "/shop",
+    },
+    {
+      id: 3,
+      category: "ORGANIC DAIRY",
+      title: "Fresh Milk & Cheese",
+      subtitle: "Direct from Local Farms",
+      image: "/img/hero/banner.jpg", // You can add more banner images
+      link: "/shop",
+    },
+  ];
+
   return (
     <section className="hero">
       <div className="container">
@@ -73,21 +101,24 @@ const HeroCarousel = () => {
                   <span>support 24/7 time</span>
                 </div>
               </div>
-            </div>
-            {/* Single Hero Item - Carousel functionality to be added later */}
-            <div className="hero__item set-bg" style={{ backgroundImage: "url('/img/hero/banner.jpg')" }}>
-              <div className="hero__text">
-                <span>FRUIT FRESH</span>
-                <h2>
-                  Vegetable <br />
-                  100% Organic
-                </h2>
-                <p>Free Pickup and Delivery Available</p>
-                <Link href="/shop" className="primary-btn">
-                  SHOP NOW
-                </Link>
-              </div>
-            </div>
+            </div>{" "}
+            {/* Hero Carousel */}
+            <Carousel autoplay dots={true} effect="fade" autoplaySpeed={5000} className="hero__carousel">
+              {heroItems.map((item) => (
+                <div key={item.id}>
+                  <div className="hero__item set-bg" style={{ backgroundImage: `url('${item.image}')` }}>
+                    <div className="hero__text">
+                      <span>{item.category}</span>
+                      <h2 dangerouslySetInnerHTML={{ __html: item.title.replace(" ", "<br />") }}></h2>
+                      <p>{item.subtitle}</p>
+                      <Link href={item.link} className="primary-btn">
+                        SHOP NOW
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </Carousel>
           </div>
         </div>
       </div>

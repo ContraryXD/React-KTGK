@@ -1,5 +1,7 @@
 import { Cairo, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,7 +45,11 @@ export default function RootLayout({ children }) {
         <link rel="stylesheet" href="/css/slicknav.min.css" type="text/css" />
         <link rel="stylesheet" href="/css/style.css" type="text/css" />
       </head>
-      <body className={`${cairo.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+      <body className={`${cairo.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Header />
+        {children}
+        <Footer />
+      </body>
     </html>
   );
 }

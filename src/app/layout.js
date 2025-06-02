@@ -2,6 +2,7 @@ import { Cairo, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import Preloader from "./components/Preloader"; // Import the Preloader component
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -46,6 +47,7 @@ export default function RootLayout({ children }) {
         <link rel="stylesheet" href="/css/style.css" type="text/css" />
       </head>
       <body className={`${cairo.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Preloader /> {/* Add Preloader here */}
         <Header />
         {children}
         <Footer />

@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { getProductById, getProducts } from "../../../api/products";
+import Hero from "../../../components/Hero";
 
 export default function ChiTietSanPham({ params }) {
   // Unwrap the params Promise using React.use()
@@ -11,6 +12,9 @@ export default function ChiTietSanPham({ params }) {
   const [dangTai, setDangTai] = useState(true);
   const [soLuong, setSoLuong] = useState(1);
   const [tabHienTai, setTabHienTai] = useState("description");
+  const [isAddingToCart, setIsAddingToCart] = useState(false); // State for loading indicator
+  const [addToCartMessage, setAddToCartMessage] = useState(null); // State for success/error message
+
   const layChiTietSanPham = useCallback(async () => {
     setDangTai(true);
     try {
@@ -76,6 +80,29 @@ export default function ChiTietSanPham({ params }) {
 
     return stars;
   };
+  const xuLyThemVaoGio = async () => {
+    if (!sanPham) return;
+    setIsAddingToCart(true);
+    setAddToCartMessage(null);
+    try {
+      // Use the global addToCart function from the cart page
+      if (window.addToCart) {
+        await window.addToCart(sanPham.id, soLuong);
+        alert(`Successfully added ${soLuong} of ${sanPham.title} to cart!`);
+        setAddToCartMessage({ type: "success", text: `Successfully added ${soLuong} of ${sanPham.title} to cart!` });
+      } else {
+        // Fallback alert if cart page is not loaded
+        alert(`Product "${sanPham.title}" (Qty: ${soLuong}) would be added to cart!`);
+        setAddToCartMessage({ type: "success", text: `Product "${sanPham.title}" (Qty: ${soLuong}) would be added to cart!` });
+      }
+    } catch (error) {
+      console.error("Failed to add to cart:", error);
+      alert(`Failed to add item to cart: ${error.message}`);
+      setAddToCartMessage({ type: "error", text: `Failed to add item to cart: ${error.message}` });
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
 
   if (dangTai) {
     return (
@@ -105,41 +132,10 @@ export default function ChiTietSanPham({ params }) {
       </div>
     );
   }
-
   return (
     <>
       {/* Hero Section Begin */}
-      <section className="hero hero-normal">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-9">
-              <div className="hero__search">
-                <div className="hero__search__form">
-                  <form action="#">
-                    <div className="hero__search__categories">
-                      Tất cả danh mục
-                      <span className="arrow_carrot-down"></span>
-                    </div>
-                    <input type="text" placeholder="Bạn cần gì?" />
-                    <button type="submit" className="site-btn">
-                      TÌM KIẾM
-                    </button>
-                  </form>
-                </div>
-                <div className="hero__search__phone">
-                  <div className="hero__search__phone__icon">
-                    <i className="fa fa-phone"></i>
-                  </div>
-                  <div className="hero__search__phone__text">
-                    <h5>+65 11.188.888</h5>
-                    <span>hỗ trợ 24/7</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Hero type="shop" showCategories={false} showSearch={true} showPhone={true} />
       {/* Hero Section End */}
 
       {/* Breadcrumb Section Begin */}
@@ -211,9 +207,10 @@ export default function ChiTietSanPham({ params }) {
                     </div>
                   </div>
                 </div>
-                <a href="#" className="primary-btn">
-                  THÊM VÀO GIỎ
-                </a>
+                <button onClick={xuLyThemVaoGio} className="primary-btn" disabled={isAddingToCart || sanPham.stock === 0}>
+                  {isAddingToCart ? "ĐANG THÊM..." : sanPham.stock === 0 ? "HẾT HÀNG" : "THÊM VÀO GIỎ"}
+                </button>
+                {addToCartMessage && <div style={{ marginTop: "10px", color: addToCartMessage.type === "success" ? "green" : "red" }}>{addToCartMessage.text}</div>}
                 <a href="#" className="heart-icon">
                   <span className="icon_heart_alt"></span>
                 </a>

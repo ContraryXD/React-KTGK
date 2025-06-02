@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import ShopSidebar from "../ShopSidebar";
 import { getProducts } from "../../api/products";
+import Hero from "../../components/Hero";
 
 export default function CategoryPage() {
   const params = useParams();
@@ -97,41 +98,10 @@ export default function CategoryPage() {
     setKhoangGia(khoangGiaMoi);
     setTrangHienTai(1);
   }, []);
-
   return (
     <>
       {/* Hero Section Begin */}
-      <section className="hero hero-normal">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-9">
-              <div className="hero__search">
-                <div className="hero__search__form">
-                  <form action="#">
-                    <div className="hero__search__categories">
-                      Tất cả danh mục
-                      <span className="arrow_carrot-down"></span>
-                    </div>
-                    <input type="text" placeholder="Bạn cần gì?" />
-                    <button type="submit" className="site-btn">
-                      TÌM KIẾM
-                    </button>
-                  </form>
-                </div>
-                <div className="hero__search__phone">
-                  <div className="hero__search__phone__icon">
-                    <i className="fa fa-phone"></i>
-                  </div>
-                  <div className="hero__search__phone__text">
-                    <h5>+65 11.188.888</h5>
-                    <span>hỗ trợ 24/7</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Hero type="shop" showCategories={false} showSearch={true} showPhone={true} />
       {/* Hero Section End */}
 
       {/* Breadcrumb Section Begin */}
@@ -237,9 +207,19 @@ export default function CategoryPage() {
                                     <a href="#">
                                       <i className="fa fa-retweet"></i>
                                     </a>
-                                  </li>
+                                  </li>{" "}
                                   <li>
-                                    <a href="#">
+                                    <a
+                                      href="#"
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        if (window.addToCart) {
+                                          window.addToCart(sp.id, 1);
+                                        } else {
+                                          alert(`Product "${sp.title}" would be added to cart!`);
+                                        }
+                                      }}
+                                    >
                                       <i className="fa fa-shopping-cart"></i>
                                     </a>
                                   </li>

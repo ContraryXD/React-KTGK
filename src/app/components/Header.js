@@ -50,9 +50,9 @@ const Header = () => {
                       <Link href="#">English</Link>
                     </li>
                   </ul>
-                </div>
+                </div>{" "}
                 <div className="header__top__right__auth">
-                  <Link href="#">
+                  <Link href="/login">
                     <i className="fa fa-user"></i> Login
                   </Link>
                 </div>
@@ -117,9 +117,9 @@ const Header = () => {
                   <Link href="#">
                     <i className="fa fa-heart"></i> <span>1</span>
                   </Link>
-                </li>
+                </li>{" "}
                 <li>
-                  <Link href="#">
+                  <Link href="/cart">
                     <i className="fa fa-shopping-bag"></i> <span>3</span>
                   </Link>
                 </li>

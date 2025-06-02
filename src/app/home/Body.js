@@ -5,6 +5,7 @@ import { Carousel, ConfigProvider } from "antd";
 import { getAllCategories, getCategoryImage } from "../api/categories";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Hero from "../components/Hero";
 
 export default function Body() {
   const [categories, setCategories] = useState([]);
@@ -141,9 +142,14 @@ export default function Body() {
         setProducts(categoryProducts);
       }
     } catch (error) {
-      console.error("Error fetching category products:", error);
-      // Fallback to filtering from all products
-      const filteredProducts = allProducts.filter((product) => product.category.toLowerCase().replace(/\s+/g, "-") === categorySlug || product.category.toLowerCase() === categorySlug);
+      console.error("Error fetching category products:", error); // Fallback to filtering from all products
+      const filteredProducts = allProducts.filter((product) => {
+        // Check if product.category exists and is a string before using toLowerCase
+        if (product.category && typeof product.category === "string") {
+          return product.category.toLowerCase().replace(/\s+/g, "-") === categorySlug || product.category.toLowerCase() === categorySlug;
+        }
+        return false;
+      });
       setProducts(filteredProducts);
     } finally {
       setProductsLoading(false);
@@ -218,72 +224,9 @@ export default function Body() {
       },
     },
   };
-
   return (
     <>
-      <section className="hero">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-3">
-              <div className="hero__categories">
-                <div className="hero__categories__all">
-                  <i className="fa fa-bars"></i>
-                  <span>All departments</span>
-                </div>
-                <ul>
-                  {categories.slice(0, 12).map((category) => (
-                    <li key={category.slug}>
-                      <Link href={`/shop/${category.slug}`}>{category.name}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-            <div className="col-lg-9">
-              <div className="hero__search">
-                <div className="hero__search__form">
-                  <form action="#">
-                    <div className="hero__search__categories">
-                      All Categories
-                      <span className="arrow_carrot-down"></span>
-                    </div>
-                    <input type="text" placeholder="What do yo u need?" />
-                    <button type="submit" className="site-btn">
-                      SEARCH
-                    </button>
-                  </form>
-                </div>
-                <div className="hero__search__phone">
-                  <div className="hero__search__phone__icon">
-                    <i className="fa fa-phone"></i>
-                  </div>
-                  <div className="hero__search__phone__text">
-                    <h5>+65 11.188.888</h5>
-                    <span>support 24/7 time</span>
-                  </div>
-                </div>
-              </div>{" "}
-              {/* Hero Carousel */}
-              <Carousel autoplay dots={true} effect="fade" autoplaySpeed={5000} className="hero__carousel">
-                {heroItems.map((item) => (
-                  <div key={item.id}>
-                    <div className="hero__item set-bg" style={{ backgroundImage: `url('${item.image}')` }}>
-                      <div className="hero__text">
-                        <span>{item.category}</span>
-                        <h2 dangerouslySetInnerHTML={{ __html: item.title.replace(" ", "<br />") }}></h2>
-                        <p>{item.subtitle}</p>
-                        <Link href={item.link} className="primary-btn">
-                          SHOP NOW
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </Carousel>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Hero type="home" showCategories={true} showSearch={true} showPhone={true} categories={categories} heroItems={heroItems} />
       {/* Categories Carousel */}
       <ConfigProvider theme={themeConfig}>
         <section className="categories">
@@ -361,9 +304,19 @@ export default function Body() {
                           <a href="#">
                             <i className="fa fa-retweet"></i>
                           </a>
-                        </li>
+                        </li>{" "}
                         <li>
-                          <a href="#">
+                          <a
+                            href="#"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              if (window.addToCart) {
+                                window.addToCart(product.id, 1);
+                              } else {
+                                alert(`Sản phẩm "${product.title}" sẽ được thêm vào giỏ hàng!`);
+                              }
+                            }}
+                          >
                             <i className="fa fa-shopping-cart"></i>
                           </a>
                         </li>
@@ -371,7 +324,7 @@ export default function Body() {
                     </div>
                     <div className="featured__item__text">
                       <h6>
-                        <Link href={`/shop/${product.id}`}>{product.title}</Link>
+                        <Link href={`/shop/id/${product.id}`}>{product.title}</Link>
                       </h6>
                       <div className="product__discount__item__text">
                         {product.originalPrice && <span className="original-price">{product.originalPrice}</span>}

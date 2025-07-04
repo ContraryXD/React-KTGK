@@ -1,8 +1,14 @@
+"use client";
 import { Cairo, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "@ant-design/v5-patch-for-react-19";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
-import Preloader from "./components/Preloader"; // Import the Preloader component
+import Preloader from "./components/Preloader";
+import HydrationHandler from "./components/HydrationHandler";
+import { Provider } from "react-redux";
+import { App } from "antd";
+import store from "../store/store";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -18,17 +24,12 @@ const cairo = Cairo({
   subsets: ["latin"],
   weight: ["200", "300", "400", "600", "900"],
   display: "swap",
-  variable: "--font-cairo", // Added variable for font
+  variable: "--font-cairo",
 });
-
-export const metadata = {
-  title: "Ogani",
-  description: "Ogani e-commerce template converted to Next.js",
-};
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <meta charSet="UTF-8" />
         <meta name="description" content="Ogani Template" />
@@ -47,10 +48,15 @@ export default function RootLayout({ children }) {
         <link rel="stylesheet" href="/css/style.css" type="text/css" />
       </head>
       <body className={`${cairo.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Preloader /> {/* Add Preloader here */}
-        <Header />
-        {children}
-        <Footer />
+        <Provider store={store}>
+          <App>
+            <HydrationHandler />
+            <Preloader />
+            <Header />
+            {children}
+            <Footer />
+          </App>
+        </Provider>
       </body>
     </html>
   );

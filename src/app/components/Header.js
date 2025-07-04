@@ -1,7 +1,33 @@
+"use client";
 import Link from "next/link";
 import Image from "next/image";
+import { useSelector, useDispatch } from "react-redux";
+import { dangxuat } from "../../store/login";
+import { App } from "antd";
+import { useState, useEffect } from "react";
 
 const Header = () => {
+  const { notification } = App.useApp();
+  const dispatch = useDispatch();
+  const giohang = useSelector((state) => state.giohang.sanpham);
+  const tongTien = useSelector((state) => state.giohang.tongtien);
+  const user = useSelector((state) => state.user);
+  const [isHydrated, setIsHydrated] = useState(false);
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  const handleLogout = () => {
+    dispatch(dangxuat());
+    localStorage.removeItem("user");
+    notification.success({
+      message: "Đăng xuất thành công",
+      description: "Hẹn gặp lại bạn!",
+      placement: "topRight",
+    });
+  };
+
+  const cartCount = giohang.reduce((total, item) => total + item.sl, 0);
   return (
     <header className="header">
       <div className="header__top">
@@ -34,12 +60,7 @@ const Header = () => {
                   </Link>
                 </div>
                 <div className="header__top__right__language">
-                  <Image
-                    src="/img/language.png"
-                    alt=""
-                    width={20}
-                    height={12} // Assuming width and height
-                  />
+                  <Image src="/img/language.png" alt="" width={20} height={12} />
                   <div>English</div>
                   <span className="arrow_carrot-down"></span>
                   <ul>
@@ -52,9 +73,22 @@ const Header = () => {
                   </ul>
                 </div>{" "}
                 <div className="header__top__right__auth">
-                  <Link href="/login">
-                    <i className="fa fa-user"></i> Login
-                  </Link>
+                  {!isHydrated ? (
+                    <Link href="/login">
+                      <i className="fa fa-user"></i> Login
+                    </Link>
+                  ) : user.status ? (
+                    <div className="user-info">
+                      <span>Hello, {user.user?.firstName || "User"}</span>
+                      <button onClick={handleLogout} style={{ marginLeft: "10px", background: "none", border: "none", color: "inherit", cursor: "pointer" }}>
+                        <i className="fa fa-sign-out"></i> Logout
+                      </button>
+                    </div>
+                  ) : (
+                    <Link href="/login">
+                      <i className="fa fa-user"></i> Login
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>
@@ -66,12 +100,7 @@ const Header = () => {
           <div className="col-lg-3">
             <div className="header__logo">
               <Link href="/">
-                <Image
-                  src="/img/logo.png"
-                  alt="Ogani Logo"
-                  width={150}
-                  height={50} // Assuming width and height
-                />
+                <Image src="/img/logo.png" alt="Ogani Logo" width={150} height={50} />
               </Link>
             </div>
           </div>
@@ -84,6 +113,11 @@ const Header = () => {
                 <li>
                   <Link href="/shop">Shop</Link>
                 </li>
+                {isHydrated && user.status && (
+                  <li>
+                    <Link href="/admin">Admin</Link>
+                  </li>
+                )}
                 <li>
                   <Link href="#">Pages</Link>
                   <ul className="header__menu__dropdown">
@@ -115,17 +149,17 @@ const Header = () => {
               <ul>
                 <li>
                   <Link href="#">
-                    <i className="fa fa-heart"></i> <span>1</span>
+                    <i className="fa fa-heart"></i> <span>0</span>
                   </Link>
                 </li>{" "}
                 <li>
                   <Link href="/cart">
-                    <i className="fa fa-shopping-bag"></i> <span>3</span>
+                    <i className="fa fa-shopping-bag"></i> <span>{cartCount}</span>
                   </Link>
                 </li>
               </ul>
               <div className="header__cart__price">
-                item: <span>$150.00</span>
+                item: <span>${tongTien.toFixed(2)}</span>
               </div>
             </div>
           </div>

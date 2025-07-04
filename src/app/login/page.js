@@ -1,158 +1,79 @@
 "use client";
-
-import { useState } from "react";
-import Link from "next/link";
+import "../login.css";
+import { dangnhap } from "../../store/login";
+import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { App } from "antd";
 
-export default function LoginPage() {
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const router = useRouter();
+export default function Login() {
+  const { notification } = App.useApp();
+  const [user, setUser] = useState({});
+  const [btnLogin, setBtnLogin] = useState(false);
+  const dispatch = useDispatch();
+  const route = useRouter();
+  const status = useSelector((state) => state.user.status);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const layGiaTri = function (e) {
+    let n = e.target.name;
+    let v = e.target.value;
+    setUser((o) => ({ ...o, [n]: v }));
   };
 
-  const handleLogin = async (e) => {
+  const dangNhap = function (e) {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-    setSuccess("");
+    setBtnLogin(true);
+  };
 
-    try {
-      const response = await fetch("https://dummyjson.com/user/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: formData.username,
-          password: formData.password,
-          expiresInMins: 30,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccess("Đăng nhập thành công!");
-        console.log("Login successful:", data);
-
-        // Store user data in localStorage (optional)
-        localStorage.setItem("user", JSON.stringify(data));
-
-        // Redirect to home page after 2 seconds
-        setTimeout(() => {
-          router.push("/");
-        }, 2000);
-      } else {
-        setError(data.message || "Tên đăng nhập hoặc mật khẩu không đúng!");
-      }
-    } catch (err) {
-      setError("Có lỗi xảy ra khi đăng nhập. Vui lòng thử lại!");
-      console.error("Login error:", err);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (status === true) {
+      route.push("/");
     }
-  };
+    if (btnLogin === true) {
+      axios
+        .post("https://dummyjson.com/user/login", {
+          username: user.username,
+          password: user.password,
+          expiresInMins: 30,
+        })
+        .then((kQ) => {
+          dispatch(dangnhap(kQ.data));
+          localStorage.setItem("user", JSON.stringify(kQ.data));
+          setBtnLogin(false);
 
-  const handleTestLogin = () => {
-    setFormData({
-      username: "emilys",
-      password: "emilyspass",
-    });
-  };
+          notification.success({
+            message: "Đăng nhập thành công",
+            description: `Chào mừng ${kQ.data.firstName} ${kQ.data.lastName}!`,
+            placement: "topRight",
+          });
+
+          route.push("/");
+        })
+        .catch((e) => {
+          console.error(e);
+          setBtnLogin(false);
+          notification.error({
+            message: "Đăng nhập thất bại",
+            description: "Tài khoản hoặc mật khẩu không đúng!",
+            placement: "topRight",
+          });
+        });
+    }
+  }, [btnLogin, status, route, dispatch, user, notification]);
 
   return (
-    <div className="container" style={{ minHeight: "80vh", paddingTop: "50px", paddingBottom: "50px" }}>
-      <div className="row justify-content-center">
-        <div className="col-lg-6 col-md-8">
-          <div className="card shadow">
-            <div className="card-header bg-primary text-white text-center">
-              <h3>Đăng Nhập</h3>
-            </div>
-            <div className="card-body p-4">
-              <form onSubmit={handleLogin}>
-                <div className="mb-3">
-                  <label htmlFor="username" className="form-label">
-                    Tên đăng nhập:
-                  </label>
-                  <input type="text" className="form-control" id="username" name="username" value={formData.username} onChange={handleInputChange} required placeholder="Nhập tên đăng nhập" />
-                </div>
-
-                <div className="mb-3">
-                  <label htmlFor="password" className="form-label">
-                    Mật khẩu:
-                  </label>
-                  <input type="password" className="form-control" id="password" name="password" value={formData.password} onChange={handleInputChange} required placeholder="Nhập mật khẩu" />
-                </div>
-
-                {error && (
-                  <div className="alert alert-danger" role="alert">
-                    {error}
-                  </div>
-                )}
-
-                {success && (
-                  <div className="alert alert-success" role="alert">
-                    {success}
-                  </div>
-                )}
-
-                <div className="d-grid gap-2 mb-3">
-                  <button type="submit" className="btn btn-primary" disabled={loading}>
-                    {loading ? "Đang đăng nhập..." : "Đăng Nhập"}
-                  </button>
-                </div>
-
-                <div className="text-center mb-3">
-                  <button type="button" className="btn btn-outline-secondary btn-sm" onClick={handleTestLogin}>
-                    Sử dụng tài khoản test (emilys/emilyspass)
-                  </button>
-                </div>
-
-                <div className="text-center">
-                  <p className="mb-0">
-                    <Link href="/" className="text-decoration-none">
-                      ← Quay về trang chủ
-                    </Link>
-                  </p>
-                </div>
-              </form>
-            </div>
-          </div>
-
-          {/* API Information */}
-          <div className="card mt-4" style={{ backgroundColor: "#f8f9fa" }}>
-            <div className="card-body">
-              <h6 className="card-title">Thông tin API Test:</h6>
-              <div className="row">
-                <div className="col-6">
-                  <small className="text-muted">
-                    <strong>Username:</strong> emilys
-                    <br />
-                    <strong>Password:</strong> emilyspass
-                  </small>
-                </div>
-                <div className="col-6">
-                  <small className="text-muted">
-                    <strong>Username:</strong> michaelw
-                    <br />
-                    <strong>Password:</strong> michaelwpass
-                  </small>
-                </div>
-              </div>
-              <small className="text-muted">API Endpoint: https://dummyjson.com/user/login</small>
-            </div>
-          </div>
-        </div>
+    <div className="login-page">
+      <div className="form">
+        <h3 className="pb-10">Đăng nhập</h3>
+        <form className="login-form" onSubmit={(e) => dangNhap(e)}>
+          <input type="text" placeholder="username" name="username" onChange={(e) => layGiaTri(e)} />
+          <input type="password" placeholder="password" name="password" onChange={(e) => layGiaTri(e)} />
+          <button type="submit">Đăng nhập</button>
+          <p className="message">
+            Bạn chưa có tài khoản? <a href="#">Tạo tài khoản</a>
+          </p>
+        </form>
       </div>
     </div>
   );

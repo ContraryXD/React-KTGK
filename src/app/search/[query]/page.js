@@ -4,16 +4,6 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import axios from "axios";
 
-export function searchProducts(query, limit = 10) {
-  return axios
-    .get(`https://dummyjson.com/products/search?q=${encodeURIComponent(query)}&limit=${limit}`)
-    .then((response) => response.data)
-    .catch((error) => {
-      console.error("Lỗi khi tìm kiếm sản phẩm:", error);
-      return { products: [], total: 0 };
-    });
-}
-
 export default function SearchResultsPage() {
   const params = useParams();
   const { query } = params;
@@ -23,12 +13,14 @@ export default function SearchResultsPage() {
   useEffect(() => {
     if (query) {
       setIsLoading(true);
-      searchProducts(decodeURIComponent(query))
-        .then((data) => {
-          setResults(data);
+      axios
+        .get(`https://dummyjson.com/products/search?q=${encodeURIComponent(decodeURIComponent(query))}&limit=10`)
+        .then((response) => {
+          setResults(response.data);
         })
         .catch((error) => {
-          console.error("Lỗi khi tìm kiếm:", error);
+          console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+          setResults({ products: [], total: 0 });
         })
         .finally(() => {
           setIsLoading(false);

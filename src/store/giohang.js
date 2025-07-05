@@ -51,8 +51,12 @@ const giohang = createSlice({
         state.tongtien += sp.gia * (sp.sl - oldSl);
       }
     },
+    xoaall: (state) => {
+      state.sanpham = [];
+      state.tongtien = 0;
+    },
   },
 });
 
-export const { them, tgsl, xoa, capnhat } = giohang.actions;
+export const { them, tgsl, xoa, capnhat, xoaall } = giohang.actions;
 export default giohang.reducer;

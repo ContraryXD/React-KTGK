@@ -3,22 +3,20 @@ import Link from "next/link";
 import Image from "next/image";
 import { useSelector, useDispatch } from "react-redux";
 import { dangxuat } from "../../store/login";
+import { xoaall } from "../../store/giohang";
 import { App } from "antd";
 import { useState, useEffect } from "react";
 
-const Header = () => {
+export default function Header() {
   const { notification } = App.useApp();
   const dispatch = useDispatch();
   const giohang = useSelector((state) => state.giohang.sanpham);
   const tongTien = useSelector((state) => state.giohang.tongtien);
   const user = useSelector((state) => state.user);
-  const [isHydrated, setIsHydrated] = useState(false);
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
 
-  const handleLogout = () => {
+  const logout = () => {
     dispatch(dangxuat());
+    dispatch(xoaall());
     localStorage.removeItem("user");
     notification.success({
       message: "Đăng xuất thành công",
@@ -73,14 +71,10 @@ const Header = () => {
                   </ul>
                 </div>{" "}
                 <div className="header__top__right__auth">
-                  {!isHydrated ? (
-                    <Link href="/login">
-                      <i className="fa fa-user"></i> Login
-                    </Link>
-                  ) : user.status ? (
+                  {user.status ? (
                     <div className="user-info">
                       <span>Hello, {user.user?.firstName || "User"}</span>
-                      <button onClick={handleLogout} style={{ marginLeft: "10px", background: "none", border: "none", color: "inherit", cursor: "pointer" }}>
+                      <button onClick={logout} style={{ marginLeft: "10px", background: "none", border: "none", color: "inherit", cursor: "pointer" }}>
                         <i className="fa fa-sign-out"></i> Logout
                       </button>
                     </div>
@@ -113,28 +107,11 @@ const Header = () => {
                 <li>
                   <Link href="/shop">Shop</Link>
                 </li>
-                {isHydrated && user.status && (
+                {user.status && user.user?.isAdmin && (
                   <li>
                     <Link href="/admin">Admin</Link>
                   </li>
                 )}
-                <li>
-                  <Link href="#">Pages</Link>
-                  <ul className="header__menu__dropdown">
-                    <li>
-                      <Link href="/shop-details">Shop Details</Link>
-                    </li>
-                    <li>
-                      <Link href="/shoping-cart">Shoping Cart</Link>
-                    </li>
-                    <li>
-                      <Link href="/checkout">Check Out</Link>
-                    </li>
-                    <li>
-                      <Link href="/blog-details">Blog Details</Link>
-                    </li>
-                  </ul>
-                </li>
                 <li>
                   <Link href="/blog">Blog</Link>
                 </li>
@@ -170,6 +147,4 @@ const Header = () => {
       </div>
     </header>
   );
-};
-
-export default Header;
+}

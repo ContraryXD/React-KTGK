@@ -8,38 +8,6 @@ import Hero from "../components/Hero";
 import { useDispatch } from "react-redux";
 import { them } from "../../store/giohang";
 
-export function layAnhCategory(slug) {
-  return axios
-    .get(`https://dummyjson.com/products/category/${slug}`, {
-      params: { limit: 1, skip: 1, select: "thumbnail" },
-    })
-    .then((productRes) => productRes.data)
-    .catch((error) => {
-      console.error(`Lỗi khi tải hình ảnh danh mục ${slug}:`, error);
-      return { products: [] };
-    });
-}
-
-export function layCategory() {
-  return axios
-    .get("https://dummyjson.com/products/categories")
-    .then((categoriesRes) => {
-      return categoriesRes.data.map((category) => {
-        if (typeof category === "string") {
-          return {
-            name: category.charAt(0).toUpperCase() + category.slice(1).replace(/-/g, " "),
-            slug: category.toLowerCase().replace(/\s+/g, "-"),
-          };
-        }
-        return category;
-      });
-    })
-    .catch((error) => {
-      console.error("Lỗi khi tải tất cả danh mục:", error);
-      return [];
-    });
-}
-
 export default function Body() {
   const { notification } = App.useApp();
   const [categories, setCategories] = useState([]);
@@ -69,55 +37,66 @@ export default function Body() {
     }
   };
   useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const categoryObjects = await layCategory();
-        const categoryData = await Promise.all(
-          categoryObjects.map(async (categoryObj) => {
-            const productData = await layAnhCategory(categoryObj.slug);
-            const product = productData?.products?.[0];
-            return {
-              name: categoryObj.name,
-              slug: categoryObj.slug,
-              img: product?.thumbnail || "/img/Image-not-found.png",
-            };
-          })
-        );
+    axios
+      .get("https://dummyjson.com/products/categories")
+      .then((categoriesRes) => {
+        const categoryObjects = categoriesRes.data;
+        const promises = categoryObjects.map((categoryObj) => {
+          return axios
+            .get(`https://dummyjson.com/products/category/${categoryObj.slug}`, {
+              params: { limit: 1, skip: 1, select: "thumbnail" },
+            })
+            .then((productRes) => {
+              const product = productRes.data?.products?.[0];
+              return {
+                name: categoryObj.name,
+                slug: categoryObj.slug,
+                img: product?.thumbnail || "/img/Image-not-found.png",
+              };
+            })
+            .catch(() => {
+              return {
+                name: categoryObj.name,
+                slug: categoryObj.slug,
+                img: "/img/Image-not-found.png",
+              };
+            });
+        });
+        return Promise.all(promises);
+      })
+      .then((categoryData) => {
         setCategories(categoryData);
-      } catch (error) {
+      })
+      .catch((error) => {
         console.error("Lỗi khi tải danh mục:", error);
-      } finally {
+      })
+      .finally(() => {
         setIsLoading(false);
-      }
-    };
-    fetchCategories();
+      });
   }, []);
 
   useEffect(() => {
-    const fetchAllProducts = () => {
-      axios
-        .get("https://dummyjson.com/products?limit=50")
-        .then((kQ) => {
-          const formattedProducts = kQ.data.products.map((product) => ({
-            id: product.id,
-            title: product.title,
-            price: `$${product.price.toFixed(2)}`,
-            originalPrice: product.discountPercentage > 0 ? `$${(product.price / (1 - product.discountPercentage / 100)).toFixed(2)}` : null,
-            discount: product.discountPercentage > 0 ? `-${Math.round(product.discountPercentage)}%` : null,
-            image: product.thumbnail,
-            category: product.category,
-            rating: product.rating,
-          }));
-          setAllProducts(formattedProducts);
-          setProducts(formattedProducts.slice(0, 8));
-          setProductsLoading(false);
-        })
-        .catch((e) => {
-          console.error("Lỗi khi tải tất cả sản phẩm:", e);
-          setProductsLoading(false);
-        });
-    };
-    fetchAllProducts();
+    axios
+      .get("https://dummyjson.com/products?limit=50")
+      .then((kQ) => {
+        const formattedProducts = kQ.data.products.map((product) => ({
+          id: product.id,
+          title: product.title,
+          price: `$${product.price.toFixed(2)}`,
+          originalPrice: product.discountPercentage > 0 ? `$${(product.price / (1 - product.discountPercentage / 100)).toFixed(2)}` : null,
+          discount: product.discountPercentage > 0 ? `-${Math.round(product.discountPercentage)}%` : null,
+          image: product.thumbnail,
+          category: product.category,
+          rating: product.rating,
+        }));
+        setAllProducts(formattedProducts);
+        setProducts(formattedProducts.slice(0, 8));
+        setProductsLoading(false);
+      })
+      .catch((e) => {
+        console.error("Lỗi khi tải tất cả sản phẩm:", e);
+        setProductsLoading(false);
+      });
   }, []);
 
   const handleCategoryFilter = (categorySlug) => {

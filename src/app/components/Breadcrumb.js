@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const Breadcrumb = ({ pageTitle, parentPage }) => {
+export default function Breadcrumb({ pageTitle, parentPage }) {
   return (
     <section className="breadcrumb-section set-bg" style={{ backgroundImage: "url('/img/breadcrumb.jpg')" }}>
       <div className="container">
@@ -18,6 +18,4 @@ const Breadcrumb = ({ pageTitle, parentPage }) => {
       </div>
     </section>
   );
-};
-
-export default Breadcrumb;
+}

@@ -4,26 +4,15 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-export function getFeaturedProducts(limit = 8) {
-  return axios
-    .get(`https://dummyjson.com/products?limit=${limit}`)
-    .then((response) => response.data.products)
-    .catch((error) => {
-      console.error("Lỗi khi tải sản phẩm nổi bật:", error);
-      return [];
-    });
-}
-
-const FeaturedProducts = () => {
+export default function FeaturedProducts() {
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch featured products from API
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const products = await getFeaturedProducts(8);
-        const featuredProducts = products.map((product) => ({
+    axios
+      .get("https://dummyjson.com/products?limit=8")
+      .then((response) => {
+        const featuredProducts = response.data.products.map((product) => ({
           id: product.id,
           title: product.title,
           price: `$${product.price.toFixed(2)}`,
@@ -34,7 +23,8 @@ const FeaturedProducts = () => {
           rating: product.rating,
         }));
         setProducts(featuredProducts);
-      } catch (error) {
+      })
+      .catch((error) => {
         console.error("Lỗi khi tải sản phẩm:", error);
         setProducts([
           {
@@ -52,12 +42,10 @@ const FeaturedProducts = () => {
             category: "Vegetables",
           },
         ]);
-      } finally {
+      })
+      .finally(() => {
         setIsLoading(false);
-      }
-    };
-
-    fetchProducts();
+      });
   }, []);
   if (isLoading) {
     return (
@@ -143,6 +131,4 @@ const FeaturedProducts = () => {
       </div>
     </section>
   );
-};
-
-export default FeaturedProducts;
+}

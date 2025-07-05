@@ -2,8 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Carousel } from "antd";
 
-const HeroCarousel = () => {
-  // Hero carousel items
+export default function HeroCarousel() {
   const heroItems = [
     {
       id: 1,
@@ -123,6 +122,4 @@ const HeroCarousel = () => {
       </div>
     </section>
   );
-};
-
-export default HeroCarousel;
+}

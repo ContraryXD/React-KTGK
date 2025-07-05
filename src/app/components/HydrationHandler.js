@@ -7,7 +7,6 @@ export default function HydrationHandler() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // Check localStorage and hydrate user data on client side only
     try {
       const savedUser = localStorage.getItem("user");
       if (savedUser) {

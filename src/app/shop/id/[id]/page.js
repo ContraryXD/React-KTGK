@@ -10,7 +10,7 @@ export default function ProductDetail() {
   const { notification } = App.useApp();
   const { id: chitiet } = useParams();
   const [data, setData] = useState({ product: {}, isLoading: true });
-  const [quantity, setQuantity] = useState(1);
+  const [soLuong, setsoLuong] = useState(1);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -22,14 +22,14 @@ export default function ProductDetail() {
       .catch((e) => console.error(e));
   }, [chitiet]);
 
-  const addToCart = () => {
+  const themVaoGioHang = () => {
     if (data.product && data.product.id) {
       const cartItem = {
         id: data.product.id,
         ten: data.product.title,
         gia: data.product.price,
         img: data.product.thumbnail,
-        sl: quantity,
+        sl: soLuong,
       };
       dispatch(them({ sanpham: cartItem }));
       notification.success({
@@ -86,14 +86,14 @@ export default function ProductDetail() {
               </div>
               <div className="product__details__price">${data.product.price}</div>
               <p>{data.product.description}</p>
-              <div className="product__details__quantity">
-                <div className="quantity">
+              <div className="product__details__soLuong">
+                <div className="soLuong">
                   <div className="pro-qty">
-                    <span className="dec qtybtn" onClick={() => setQuantity(Math.max(1, quantity - 1))}>
+                    <span className="dec qtybtn" onClick={() => setsoLuong(Math.max(1, soLuong - 1))}>
                       -
                     </span>
-                    <input type="text" value={quantity} readOnly />
-                    <span className="inc qtybtn" onClick={() => setQuantity(quantity + 1)}>
+                    <input type="text" value={soLuong} readOnly />
+                    <span className="inc qtybtn" onClick={() => setsoLuong(soLuong + 1)}>
                       +
                     </span>
                   </div>
@@ -104,7 +104,7 @@ export default function ProductDetail() {
                 className="primary-btn"
                 onClick={(e) => {
                   e.preventDefault();
-                  addToCart();
+                  themVaoGioHang();
                 }}
               >
                 THÊM VÀO GIỎ HÀNG

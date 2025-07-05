@@ -50,7 +50,6 @@ export default function RootLayout({ children }) {
       <body className={`${cairo.variable} ${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Provider store={store}>
           <App>
-            <HydrationHandler />
             <Preloader />
             <Header />
             {children}

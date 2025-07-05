@@ -5,23 +5,10 @@ import { useParams } from "next/navigation";
 import ShopSidebar from "../ShopSidebar";
 import Hero from "../../components/Hero";
 import axios from "axios";
-
-export function laySPDanhMuc({ category, limit = 9, skip = 0 }) {
-  return axios
-    .get(`https://dummyjson.com/products/category/${category}?limit=${limit}&skip=${skip}`)
-    .then((response) => ({
-      products: response.data.products || [],
-      total: response.data.total || 0,
-      skip: response.data.skip || 0,
-      limit: response.data.limit || 0,
-    }))
-    .catch((error) => {
-      console.error(`Lỗi khi tải sản phẩm cho danh mục ${category}:`, error);
-      return { products: [], total: 0, skip: 0, limit: 0 };
-    });
-}
+import { App } from "antd";
 
 export default function CategoryPage() {
+  const { notification } = App.useApp();
   const params = useParams();
   const categorySlug = params.cat;
 
@@ -32,35 +19,40 @@ export default function CategoryPage() {
   const [sapXepTheo, setSapXepTheo] = useState("default");
   const [khoangGia, setKhoangGia] = useState({ min: 0, max: 1000 });
   const soSPMoiTrang = 9;
-  const layDuLieuSP = useCallback(async () => {
+  const layDuLieuSP = useCallback(() => {
     setIsLoading(true);
-    try {
-      const boQua = (trangHienTai - 1) * soSPMoiTrang;
+    const boQua = (trangHienTai - 1) * soSPMoiTrang;
 
-      const duLieu = await laySPDanhMuc({
-        category: categorySlug,
-        limit: soSPMoiTrang,
-        skip: boQua,
+    axios
+      .get(`https://dummyjson.com/products/category/${categorySlug}?limit=${soSPMoiTrang}&skip=${boQua}`)
+      .then((response) => {
+        const duLieu = {
+          products: response.data.products || [],
+          total: response.data.total || 0,
+          skip: response.data.skip || 0,
+          limit: response.data.limit || 0,
+        };
+
+        const dsSPDaFormat = duLieu.products.map((sanPham) => ({
+          id: sanPham.id,
+          title: sanPham.title,
+          price: sanPham.price,
+          image: sanPham.thumbnail,
+          category: sanPham.category,
+          discountPercentage: sanPham.discountPercentage,
+        }));
+
+        setSanPham(dsSPDaFormat);
+        setTongSoSP(duLieu.total);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải sản phẩm:", error);
+        setSanPham([]);
+        setTongSoSP(0);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
-
-      const dsSPDaFormat = duLieu.products.map((sanPham) => ({
-        id: sanPham.id,
-        title: sanPham.title,
-        price: sanPham.price,
-        image: sanPham.thumbnail,
-        category: sanPham.category,
-        discountPercentage: sanPham.discountPercentage,
-      }));
-
-      setSanPham(dsSPDaFormat);
-      setTongSoSP(duLieu.total);
-    } catch (error) {
-      console.error("Lỗi khi tải sản phẩm:", error);
-      setSanPham([]);
-      setTongSoSP(0);
-    } finally {
-      setIsLoading(false);
-    }
   }, [trangHienTai, categorySlug, soSPMoiTrang]);
 
   useEffect(() => {
@@ -73,13 +65,6 @@ export default function CategoryPage() {
 
   const formatGia = (gia) => {
     return `$${gia.toFixed(2)}`;
-  };
-
-  const formatTenDanhMuc = (slug) => {
-    return slug
-      .split("-")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
   };
 
   const tongSoTrang = Math.ceil(tongSoSP / soSPMoiTrang);
@@ -217,7 +202,11 @@ export default function CategoryPage() {
                                         if (window.addToCart) {
                                           window.addToCart(sp.id, 1);
                                         } else {
-                                          alert(`Product "${sp.title}" would be added to cart!`);
+                                          notification.info({
+                                            message: "Chức năng chưa sẵn sàng",
+                                            description: `Sản phẩm "${sp.title}" sẽ được thêm vào giỏ hàng!`,
+                                            placement: "topRight",
+                                          });
                                         }
                                       }}
                                     >

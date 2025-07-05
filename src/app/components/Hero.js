@@ -1,45 +1,13 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import Link from "next/link";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
+import CategoriesDropdown from "./CategoriesDropdown";
 
-export function getAllCategories() {
-  return axios
-    .get("https://dummyjson.com/products/categories")
-    .then((categoriesRes) => {
-      return categoriesRes.data.map((category) => {
-        if (typeof category === "string") {
-          return {
-            name: category.charAt(0).toUpperCase() + category.slice(1).replace(/-/g, " "),
-            slug: category.toLowerCase().replace(/\s+/g, "-"),
-          };
-        }
-        return category;
-      });
-    })
-    .catch((error) => {
-      console.error("Lỗi khi tải tất cả danh mục:", error);
-      return [];
-    });
-}
-
-const Hero = () => {
+export default function Hero() {
   const [tuKhoa, setTuKhoa] = useState("");
-  const [categories, setCategories] = useState([]);
   const router = useRouter();
 
-  useEffect(() => {
-    getAllCategories()
-      .then((data) => {
-        setCategories(data);
-      })
-      .catch((error) => {
-        console.error("Lỗi khi tải danh mục:", error);
-      });
-  }, []);
-
-  const handleTimKiem = () => {
+  const timKiem = () => {
     if (tuKhoa.trim() !== "") {
       router.push(`/search/${tuKhoa}`);
     }
@@ -50,26 +18,7 @@ const Hero = () => {
       <div className="container">
         <div className="row">
           <div className="col-lg-3">
-            <div className="hero__categories">
-              <div className="hero__categories__all">
-                <i className="fa fa-bars" />
-                <span>Tất cả danh mục</span>
-              </div>
-              <ul
-                style={{
-                  maxHeight: "450px",
-                  overflowY: "auto",
-                  scrollbarWidth: "thin",
-                  scrollbarColor: "#7fad39 #f8f9fa",
-                }}
-              >
-                {categories.map((category) => (
-                  <li key={category.slug}>
-                    <Link href={`/shop/${category.slug}`}>{category.name}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <CategoriesDropdown showOnHomepage={true} />
           </div>
           <div className="col-lg-9">
             <div className="hero__search">
@@ -80,7 +29,7 @@ const Hero = () => {
                     <span className="arrow_carrot-down" />
                   </div>
                   <input type="text" placeholder="Bạn cần gì?" value={tuKhoa} onChange={(e) => setTuKhoa(e.target.value)} />
-                  <button type="button" onClick={handleTimKiem} className="site-btn">
+                  <button type="button" onClick={timKiem} className="site-btn">
                     TÌM KIẾM
                   </button>
                 </form>
@@ -117,6 +66,4 @@ const Hero = () => {
       </div>
     </section>
   );
-};
-
-export default Hero;
+}

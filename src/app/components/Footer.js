@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 
-const Footer = () => {
+export default function Footer() {
   return (
     <footer className="footer spad">
       <div className="container">
@@ -112,6 +112,4 @@ const Footer = () => {
       </div>
     </footer>
   );
-};
-
-export default Footer;
+}

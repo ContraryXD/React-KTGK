@@ -19,7 +19,6 @@ const user = createSlice({
       state.status = false;
     },
     hydrate: (state, action) => {
-      // Action to hydrate user data from localStorage on client
       if (action.payload) {
         state.info = action.payload;
         state.user = action.payload;

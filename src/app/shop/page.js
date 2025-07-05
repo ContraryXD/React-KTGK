@@ -1,36 +1,13 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import ShopSidebar from "./ShopSidebar";
 import Hero from "../components/Hero";
 import axios from "axios";
-
-export function getAllProducts({ limit = 18, skip = 0, sortBy, order } = {}) {
-  let url = `https://dummyjson.com/products?limit=${limit}&skip=${skip}`;
-
-  // thêm chuỗi sort vào url
-  if (sortBy) {
-    url += `&sortBy=${sortBy}`;
-  }
-  if (order) {
-    url += `&order=${order}`;
-  }
-
-  return axios
-    .get(url)
-    .then((response) => ({
-      products: response.data.products || [],
-      total: response.data.total || 0,
-      skip: response.data.skip || 0,
-      limit: response.data.limit || 0,
-    }))
-    .catch((error) => {
-      console.error("Lỗi khi tải tất cả sản phẩm:", error);
-      return { products: [], total: 0, skip: 0, limit: 0 };
-    });
-}
+import { App } from "antd";
 
 export default function ShopPage() {
+  const { notification } = App.useApp();
   const [sanPham, setSanPham] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [trangHienTai, setTrangHienTai] = useState(1);
@@ -39,64 +16,77 @@ export default function ShopPage() {
   const [khoangGia, setKhoangGia] = useState({ min: 0, max: 1000 });
   const [viewMode, setViewMode] = useState("grid");
   const soSPMoiTrang = 9;
-  const layDuLieuSP = useCallback(async () => {
+
+  const layDuLieuSP = () => {
     setIsLoading(true);
-    try {
-      const boQua = (trangHienTai - 1) * soSPMoiTrang;
+    const boQua = (trangHienTai - 1) * soSPMoiTrang;
 
-      let sortBy, order;
-      if (sapXepTheo === "price-low") {
-        sortBy = "price";
-        order = "asc";
-      } else if (sapXepTheo === "price-high") {
-        sortBy = "price";
-        order = "desc";
-      } else if (sapXepTheo === "name") {
-        sortBy = "title";
-        order = "asc";
-      }
-
-      const duLieu = await getAllProducts({
-        limit: soSPMoiTrang,
-        skip: boQua,
-        sortBy,
-        order,
-      });
-
-      let dsSPDaFormat = duLieu.products.map((sanPham) => ({
-        id: sanPham.id,
-        title: sanPham.title,
-        price: sanPham.price,
-        image: sanPham.thumbnail,
-        category: sanPham.category,
-        discountPercentage: sanPham.discountPercentage,
-      }));
-
-      // Apply only price filtering on the client-side
-      dsSPDaFormat = dsSPDaFormat.filter((sp) => sp.price >= khoangGia.min && sp.price <= khoangGia.max);
-
-      setSanPham(dsSPDaFormat);
-      setTongSoSP(duLieu.total);
-    } catch (error) {
-      console.error("Lỗi khi tải sản phẩm:", error);
-      setSanPham([
-        {
-          id: 1,
-          title: "Crab Pool Security",
-          price: 30.0,
-          image: "/img/product/product-1.jpg",
-          category: "Seafood",
-        },
-      ]);
-      setTongSoSP(30);
-    } finally {
-      setIsLoading(false);
+    let sortBy, order;
+    if (sapXepTheo === "price-low") {
+      sortBy = "price";
+      order = "asc";
+    } else if (sapXepTheo === "price-high") {
+      sortBy = "price";
+      order = "desc";
+    } else if (sapXepTheo === "name") {
+      sortBy = "title";
+      order = "asc";
     }
-  }, [trangHienTai, sapXepTheo, khoangGia, soSPMoiTrang]);
+
+    let url = `https://dummyjson.com/products?limit=${soSPMoiTrang}&skip=${boQua}`;
+    if (sortBy) {
+      url += `&sortBy=${sortBy}`;
+    }
+    if (order) {
+      url += `&order=${order}`;
+    }
+
+    axios
+      .get(url)
+      .then((response) => {
+        const duLieu = {
+          products: response.data.products || [],
+          total: response.data.total || 0,
+          skip: response.data.skip || 0,
+          limit: response.data.limit || 0,
+        };
+
+        let dsSPDaFormat = duLieu.products.map((sanPham) => ({
+          id: sanPham.id,
+          title: sanPham.title,
+          price: sanPham.price,
+          image: sanPham.thumbnail,
+          category: sanPham.category,
+          discountPercentage: sanPham.discountPercentage,
+        }));
+
+        dsSPDaFormat = dsSPDaFormat.filter((sp) => sp.price >= khoangGia.min && sp.price <= khoangGia.max);
+
+        setSanPham(dsSPDaFormat);
+        setTongSoSP(duLieu.total);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải sản phẩm:", error);
+        setSanPham([
+          {
+            id: 1,
+            title: "Crab Pool Security",
+            price: 30.0,
+            image: "/img/product/product-1.jpg",
+            category: "Seafood",
+          },
+        ]);
+        setTongSoSP(30);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
 
   useEffect(() => {
     layDuLieuSP();
-  }, [layDuLieuSP]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trangHienTai, sapXepTheo, khoangGia]);
 
   const formatGia = (gia) => {
     return `$${gia.toFixed(2)}`;
@@ -115,10 +105,10 @@ export default function ShopPage() {
     setTrangHienTai(1); // Reset về trang đầu khi sắp xếp
   };
 
-  const xuLyDoiGia = useCallback((khoangGiaMoi) => {
+  const xuLyDoiGia = (khoangGiaMoi) => {
     setKhoangGia(khoangGiaMoi);
     setTrangHienTai(1); // Reset về trang đầu khi lọc
-  }, []);
+  };
   return (
     <>
       {/* Hero Section with Search */}
@@ -239,7 +229,11 @@ export default function ShopPage() {
                                       if (window.addToCart) {
                                         window.addToCart(sp.id, 1);
                                       } else {
-                                        alert(`Product "${sp.title}" would be added to cart!`);
+                                        notification.info({
+                                          message: "Chức năng chưa sẵn sàng",
+                                          description: `Sản phẩm "${sp.title}" sẽ được thêm vào giỏ hàng!`,
+                                          placement: "topRight",
+                                        });
                                       }
                                     }}
                                   >
@@ -370,7 +364,11 @@ export default function ShopPage() {
                                     if (window.addToCart) {
                                       window.addToCart(sp.id, 1);
                                     } else {
-                                      alert(`Product "${sp.title}" would be added to cart!`);
+                                      notification.info({
+                                        message: "Chức năng chưa sẵn sàng",
+                                        description: `Sản phẩm "${sp.title}" sẽ được thêm vào giỏ hàng!`,
+                                        placement: "topRight",
+                                      });
                                     }
                                   }}
                                   style={{

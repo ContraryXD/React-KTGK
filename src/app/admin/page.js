@@ -1,10 +1,58 @@
 "use client";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 
 export default function AdminPage() {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const user = useSelector((state) => state.user.user);
+
+  useEffect(() => {
+    const checkAdmin = () => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        if (userData.isAdmin === true) {
+          setIsAdmin(true);
+        } else {
+          router.push("/login");
+        }
+      } else if (user && user.isAdmin === true) {
+        setIsAdmin(true);
+      } else {
+        router.push("/login");
+      }
+      setIsLoading(false);
+    };
+
+    checkAdmin();
+  }, [user, router]);
+
+  if (isLoading) {
+    return (
+      <div style={{ padding: "24px", textAlign: "center" }}>
+        <div>Đang kiểm tra quyền truy cập...</div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div style={{ padding: "24px", textAlign: "center" }}>
+        <h2>Bạn không có quyền truy cập trang này</h2>
+        <Link href="/login" style={{ color: "#7fad39" }}>
+          Đăng nhập lại
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div style={{ padding: "24px" }}>
-      <h1>Trang Quản Trị</h1>
+      <h1>Trang admin</h1>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px", marginTop: "30px" }}>
         <div style={{ border: "1px solid #ddd", padding: "20px", borderRadius: "8px" }}>

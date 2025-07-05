@@ -2,11 +2,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { App } from "antd";
 
 export default function AdminProducts() {
+  const { notification } = App.useApp();
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [editingProduct, setEditingProduct] = useState(null);
+  const [editSP, seteditSP] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
@@ -15,8 +19,13 @@ export default function AdminProducts() {
     brand: "",
     description: "",
   });
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
-  const fetchProducts = () => {
+  const router = useRouter();
+  const user = useSelector((state) => state.user.user);
+
+  const laySP = () => {
     axios
       .get("https://dummyjson.com/products?limit=30")
       .then((kQ) => {
@@ -31,11 +40,11 @@ export default function AdminProducts() {
   };
 
   useEffect(() => {
-    fetchProducts();
+    laySP();
   }, []);
 
-  const handleEdit = (product) => {
-    setEditingProduct(product);
+  const edit = (product) => {
+    seteditSP(product);
     setFormData({
       title: product.title,
       price: product.price,
@@ -46,8 +55,8 @@ export default function AdminProducts() {
     setShowForm(true);
   };
 
-  const handleAdd = () => {
-    setEditingProduct(null);
+  const add = () => {
+    seteditSP(null);
     setFormData({
       title: "",
       price: "",
@@ -58,46 +67,70 @@ export default function AdminProducts() {
     setShowForm(true);
   };
 
-  const handleSubmit = (e) => {
+  const submit = (e) => {
     e.preventDefault();
-    if (editingProduct) {
+    if (editSP) {
       axios
-        .put(`https://dummyjson.com/products/${editingProduct.id}`, formData)
+        .put(`https://dummyjson.com/products/${editSP.id}`, formData)
         .then((kQ) => {
-          setProducts(products.map((product) => (product.id === editingProduct.id ? { ...product, ...formData } : product)));
-          alert("Cập nhật thành công!");
+          setProducts(products.map((product) => (product.id === editSP.id ? { ...product, ...formData } : product)));
+          notification.success({
+            message: "Cập nhật thành công",
+            description: "Thông tin sản phẩm đã được cập nhật",
+            placement: "topRight",
+          });
           setShowForm(false);
         })
         .catch((e) => {
           console.error("Lỗi khi lưu:", e);
-          alert("Có lỗi xảy ra!");
+          notification.error({
+            message: "Cập nhật thất bại",
+            description: "Không thể cập nhật thông tin sản phẩm",
+            placement: "topRight",
+          });
         });
     } else {
       axios
         .post("https://dummyjson.com/products/add", formData)
         .then((kQ) => {
           setProducts([{ ...kQ.data, ...formData }, ...products]);
-          alert("Thêm mới thành công!");
+          notification.success({
+            message: "Thêm mới thành công",
+            description: "Sản phẩm mới đã được thêm vào hệ thống",
+            placement: "topRight",
+          });
           setShowForm(false);
         })
         .catch((e) => {
           console.error("Lỗi khi lưu:", e);
-          alert("Có lỗi xảy ra!");
+          notification.error({
+            message: "Thêm mới thất bại",
+            description: "Không thể thêm sản phẩm mới",
+            placement: "topRight",
+          });
         });
     }
   };
 
-  const handleDelete = (id) => {
+  const xoa = (id) => {
     if (confirm("Bạn có chắc chắn muốn xóa sản phẩm này?")) {
       axios
         .delete(`https://dummyjson.com/products/${id}`)
         .then((kQ) => {
           setProducts(products.filter((product) => product.id !== id));
-          alert("Xóa thành công!");
+          notification.success({
+            message: "Xóa thành công",
+            description: "Sản phẩm đã được xóa khỏi hệ thống",
+            placement: "topRight",
+          });
         })
         .catch((e) => {
           console.error("Lỗi khi xóa:", e);
-          alert("Có lỗi xảy ra!");
+          notification.error({
+            message: "Xóa thất bại",
+            description: "Không thể xóa sản phẩm",
+            placement: "topRight",
+          });
         });
     }
   };
@@ -108,6 +141,46 @@ export default function AdminProducts() {
       [e.target.name]: e.target.value,
     });
   };
+
+  useEffect(() => {
+    const checkAdminAccess = () => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        if (userData.isAdmin === true) {
+          setIsAdmin(true);
+        } else {
+          router.push("/login");
+        }
+      } else if (user && user.isAdmin === true) {
+        setIsAdmin(true);
+      } else {
+        router.push("/login");
+      }
+      setAuthLoading(false);
+    };
+
+    checkAdminAccess();
+  }, [user, router]);
+
+  if (authLoading) {
+    return (
+      <div style={{ padding: "24px", textAlign: "center" }}>
+        <div>Đang kiểm tra quyền truy cập...</div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div style={{ padding: "24px", textAlign: "center" }}>
+        <h2>Bạn không có quyền truy cập trang này</h2>
+        <Link href="/login" style={{ color: "#7fad39" }}>
+          Đăng nhập lại
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: "24px" }}>
@@ -120,7 +193,7 @@ export default function AdminProducts() {
       <h1>Quản lý Sản phẩm</h1>
 
       <button
-        onClick={handleAdd}
+        onClick={add}
         style={{
           padding: "10px 20px",
           backgroundColor: "#7fad39",
@@ -160,8 +233,8 @@ export default function AdminProducts() {
               overflowY: "auto",
             }}
           >
-            <h3>{editingProduct ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}</h3>
-            <form onSubmit={handleSubmit}>
+            <h3>{editSP ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới"}</h3>
+            <form onSubmit={submit}>
               <div style={{ marginBottom: "15px" }}>
                 <label>Tên sản phẩm:</label>
                 <input
@@ -272,7 +345,7 @@ export default function AdminProducts() {
                     cursor: "pointer",
                   }}
                 >
-                  {editingProduct ? "Cập nhật" : "Thêm mới"}
+                  {editSP ? "Cập nhật" : "Thêm mới"}
                 </button>
               </div>
             </form>
@@ -305,7 +378,7 @@ export default function AdminProducts() {
                   <td style={{ padding: "12px", border: "1px solid #ddd" }}>{product.brand || "N/A"}</td>
                   <td style={{ padding: "12px", border: "1px solid #ddd" }}>
                     <button
-                      onClick={() => handleEdit(product)}
+                      onClick={() => edit(product)}
                       style={{
                         padding: "5px 10px",
                         backgroundColor: "#007bff",
@@ -319,7 +392,7 @@ export default function AdminProducts() {
                       Sửa
                     </button>
                     <button
-                      onClick={() => handleDelete(product.id)}
+                      onClick={() => xoa(product.id)}
                       style={{
                         padding: "5px 10px",
                         backgroundColor: "#dc3545",

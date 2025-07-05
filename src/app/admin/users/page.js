@@ -2,11 +2,15 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
+import { App } from "antd";
 
 export default function AdminUsers() {
+  const { notification } = App.useApp();
   const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [editingUser, setEditingUser] = useState(null);
+  const [editUser, seteditUser] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
@@ -14,8 +18,13 @@ export default function AdminUsers() {
     email: "",
     age: "",
   });
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
-  const fetchUsers = () => {
+  const router = useRouter();
+  const user = useSelector((state) => state.user.user);
+
+  const layUsers = () => {
     axios
       .get("https://dummyjson.com/users?limit=20")
       .then((kQ) => {
@@ -30,11 +39,11 @@ export default function AdminUsers() {
   };
 
   useEffect(() => {
-    fetchUsers();
+    layUsers();
   }, []);
 
-  const handleEdit = (user) => {
-    setEditingUser(user);
+  const edit = (user) => {
+    seteditUser(user);
     setFormData({
       firstName: user.firstName,
       lastName: user.lastName,
@@ -44,8 +53,8 @@ export default function AdminUsers() {
     setShowForm(true);
   };
 
-  const handleAdd = () => {
-    setEditingUser(null);
+  const add = () => {
+    seteditUser(null);
     setFormData({
       firstName: "",
       lastName: "",
@@ -55,46 +64,70 @@ export default function AdminUsers() {
     setShowForm(true);
   };
 
-  const handleSubmit = (e) => {
+  const submit = (e) => {
     e.preventDefault();
-    if (editingUser) {
+    if (editUser) {
       axios
-        .put(`https://dummyjson.com/users/${editingUser.id}`, formData)
+        .put(`https://dummyjson.com/users/${editUser.id}`, formData)
         .then((kQ) => {
-          setUsers(users.map((user) => (user.id === editingUser.id ? { ...user, ...formData } : user)));
-          alert("Cập nhật thành công!");
+          setUsers(users.map((user) => (user.id === editUser.id ? { ...user, ...formData } : user)));
+          notification.success({
+            message: "Cập nhật thành công",
+            description: "Thông tin người dùng đã được cập nhật",
+            placement: "topRight",
+          });
           setShowForm(false);
         })
         .catch((e) => {
           console.error("Lỗi khi lưu:", e);
-          alert("Có lỗi xảy ra!");
+          notification.error({
+            message: "Cập nhật thất bại",
+            description: "Không thể cập nhật thông tin người dùng",
+            placement: "topRight",
+          });
         });
     } else {
       axios
         .post("https://dummyjson.com/users/add", formData)
         .then((kQ) => {
           setUsers([...users, { ...kQ.data, ...formData }]);
-          alert("Thêm mới thành công!");
+          notification.success({
+            message: "Thêm mới thành công",
+            description: "Người dùng mới đã được thêm vào hệ thống",
+            placement: "topRight",
+          });
           setShowForm(false);
         })
         .catch((e) => {
           console.error("Lỗi khi lưu:", e);
-          alert("Có lỗi xảy ra!");
+          notification.error({
+            message: "Thêm mới thất bại",
+            description: "Không thể thêm người dùng mới",
+            placement: "topRight",
+          });
         });
     }
   };
 
-  const handleDelete = (id) => {
+  const xoa = (id) => {
     if (confirm("Bạn có chắc chắn muốn xóa người dùng này?")) {
       axios
         .delete(`https://dummyjson.com/users/${id}`)
         .then((kQ) => {
           setUsers(users.filter((user) => user.id !== id));
-          alert("Xóa thành công!");
+          notification.success({
+            message: "Xóa thành công",
+            description: "Người dùng đã được xóa khỏi hệ thống",
+            placement: "topRight",
+          });
         })
         .catch((e) => {
           console.error("Lỗi khi xóa:", e);
-          alert("Có lỗi xảy ra!");
+          notification.error({
+            message: "Xóa thất bại",
+            description: "Không thể xóa người dùng",
+            placement: "topRight",
+          });
         });
     }
   };
@@ -105,6 +138,46 @@ export default function AdminUsers() {
       [e.target.name]: e.target.value,
     });
   };
+
+  useEffect(() => {
+    const checkAdminAccess = () => {
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        if (userData.isAdmin === true) {
+          setIsAdmin(true);
+        } else {
+          router.push("/login");
+        }
+      } else if (user && user.isAdmin === true) {
+        setIsAdmin(true);
+      } else {
+        router.push("/login");
+      }
+      setAuthLoading(false);
+    };
+
+    checkAdminAccess();
+  }, [user, router]);
+
+  if (authLoading) {
+    return (
+      <div style={{ padding: "24px", textAlign: "center" }}>
+        <div>Đang kiểm tra quyền truy cập...</div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div style={{ padding: "24px", textAlign: "center" }}>
+        <h2>Bạn không có quyền truy cập trang này</h2>
+        <Link href="/login" style={{ color: "#7fad39" }}>
+          Đăng nhập lại
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: "24px" }}>
@@ -117,7 +190,7 @@ export default function AdminUsers() {
       <h1>Quản lý Người dùng</h1>
 
       <button
-        onClick={handleAdd}
+        onClick={add}
         style={{
           padding: "10px 20px",
           backgroundColor: "#7fad39",
@@ -155,8 +228,8 @@ export default function AdminUsers() {
               maxWidth: "90%",
             }}
           >
-            <h3>{editingUser ? "Chỉnh sửa người dùng" : "Thêm người dùng mới"}</h3>
-            <form onSubmit={handleSubmit}>
+            <h3>{editUser ? "Chỉnh sửa người dùng" : "Thêm người dùng mới"}</h3>
+            <form onSubmit={submit}>
               <div style={{ marginBottom: "15px" }}>
                 <label>Tên:</label>
                 <input
@@ -250,7 +323,7 @@ export default function AdminUsers() {
                     cursor: "pointer",
                   }}
                 >
-                  {editingUser ? "Cập nhật" : "Thêm mới"}
+                  {editUser ? "Cập nhật" : "Thêm mới"}
                 </button>
               </div>
             </form>
@@ -283,7 +356,7 @@ export default function AdminUsers() {
                   <td style={{ padding: "12px", border: "1px solid #ddd" }}>{user.age}</td>
                   <td style={{ padding: "12px", border: "1px solid #ddd" }}>
                     <button
-                      onClick={() => handleEdit(user)}
+                      onClick={() => edit(user)}
                       style={{
                         padding: "5px 10px",
                         backgroundColor: "#007bff",
@@ -297,7 +370,7 @@ export default function AdminUsers() {
                       Sửa
                     </button>
                     <button
-                      onClick={() => handleDelete(user.id)}
+                      onClick={() => xoa(user.id)}
                       style={{
                         padding: "5px 10px",
                         backgroundColor: "#dc3545",
